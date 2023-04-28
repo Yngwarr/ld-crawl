@@ -23,16 +23,29 @@
        (map capitalize)
        (join " ")))
 
-(link-name :pixel-prophecy)
-
-(defn backlog-page [games-map]
+(defn backlog-page [games-map last-event-pages]
   (page "Ludum Dare Backlog"
-        [:<>
-         [:h1 "Ludum Dare Backlog"]
-         [:ul#table
-          ;; TODO set to the last event
-          (map #(vector :li [:a {:href (name %)} (link-name %)])
-               (keys games-map))]]))
+        (list
+          [:h1 "Ludum Dare Backlog"]
+          [:ul#table
+           ;; TODO set to the last event
+           (map #(vector :li [:a {:href (str (name %) "/" (last-event-pages %))}
+                              (link-name %)])
+                (keys games-map))])))
 
-(comment
-  (println (page "Foo" [:span.foo "bar"])))
+(defn events-header [events]
+  [:ul#events
+   (map #(vector :li [:a {:href (str % ".html")} %])
+        (vals (into (sorted-map-by >) events)))])
+
+(defn event-page [games events list-key event-id]
+  (page (str (link-name list-key) " — Ludum Dare Backlog")
+        (list
+          (events-header events)
+          [:h1 (str "Ludum Dare " (get events event-id))]
+          [:ul#table
+           (map #(vector :li
+                         [:b (:author %)]
+                         " made "
+                         [:a {:href (str "https://ldjam.com" (:path %))} (:name %)])
+                games)])))

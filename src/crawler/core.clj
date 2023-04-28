@@ -1,72 +1,37 @@
 (ns crawler.core
-  (:require [crawler.data :as data]
-            [clojure.string :refer [join]]
-            [clj-http.client :as http]
-            [cheshire.core :as json]))
+  (:require [crawler.crawl :as crawl]
+            [crawler.render :as render]
+            [clojure.java.io :as io]))
 
-(defn crawl [path]
-  (let [res (http/get (str "https://api.ldjam.com/vx" path))]
-    ; TODO handle errors
-    (json/parse-string (:body res) true)))
+(defn parse-int [s]
+  (Integer. (re-find #"\d+" s)))
 
-(defn crawl-nodes [ids]
-  (crawl (str "/node2/get/" (join "+" ids))))
+(defn mkdir [dir-name]
+  (or (.mkdir (java.io.File. dir-name)) nil))
 
-(defn crawl-user-id [author-name]
-  (let [res (crawl (str "/node2/walk/1/users/" author-name))]
-    (cond
-      (not= (:status res) 200) nil
-      ;; users are stored in the "users" node, therefore path to user consists
-      ;; of 2 entries. (count path) = 1 means, there's no user with the
-      ;; specified name
-      (= (count (:path res)) 1) nil
-      :else (:node_id res))))
+(defn ls [dir-name]
+  (file-seq (io/file dir-name)))
 
-(defn crawl-game-ids [user-id]
-  (let [res (crawl (str "/node/feed/" user-id "/authors/item/game?limit=250"))]
-    (if (= (:status res) 200)
-      (mapv :id (:feed res))
-      nil)))
+(def site-path "public/")
+;(def site-path "private/")
 
-(def games
-  (reduce
-   (fn [acc [list-name authors]]
-     (assoc acc
-            list-name
-            (apply merge-with #(if (vector? %1) (conj %1 %2) [%1 %2])
-                   (reduce
-                    (fn [acc author]
-                      (conj acc
-                            (->> author
-                                 crawl-user-id
-                                 crawl-game-ids
-                                 crawl-nodes
-                                 :node
-                                 (map #(vector (:parent %)
-                                               (assoc
-                                                ;; TODO remove :parent if not needed
-                                                (select-keys % [:name :path :parent])
-                                                :author author)))
-                                 (into {}))))
-                    [] authors))))
-   {} data/lists))
+(defn last-event-page [list-key]
+  (->> (ls (str site-path (name list-key) "/"))
+       (filter #(.isFile %))
+       (map #(.getName %))
+       (apply max-key parse-int)))
 
-(defn events [games-map]
-  (->> games-map
-       keys
-       (into #{})
-       crawl-nodes
-       :node
-       (reduce #(assoc %1 (:id %2) (:slug %2)) {})))
+(def games (crawl/games))
+(defn generate-pages []
+  (doseq [[list-key event-map] games]
+    (mkdir (str site-path (name list-key)))
+    (let [events (crawl/events event-map)]
+      (doseq [[event-id games-map] event-map]
+        (spit (str site-path (name list-key) "/" (get events event-id) ".html")
+              (render/event-page games-map events list-key event-id)))))
+  (spit (str site-path "index.html")
+        (render/backlog-page
+         games
+         (reduce #(assoc %1 %2 (last-event-page %2)) {} (keys games)))))
 
-(comment
-  (prn games)
-  (prn (events (:pixel-prophecy games)))
-  (reduce (fn [acc [k v]] (assoc acc k [v (* 2 v)])) {} {:a 1 :b 2})
-  (prn (crawl-user-id "yngvarr"))
-  (crawl "/node2/get/2")
-  (filter not-empty ["one" "" "two" "three"])
-  (def res (http/get "https://api.ldjam.com/vx/node2/walk/1/users/yngvarr"))
-  (json/parse-string (:body res) true)
-  (crawl "/node2/walk/1/users/yngvarr")
-  )
+(generate-pages)
