@@ -1,10 +1,8 @@
 (ns crawler.core
   (:require [crawler.data :as data]
-            [clojure.set :refer [union]]
             [clojure.string :refer [join]]
             [clj-http.client :as http]
-            [cheshire.core :as json]
-            [hiccup.core :refer [html]]))
+            [cheshire.core :as json]))
 
 (defn crawl [path]
   (let [res (http/get (str "https://api.ldjam.com/vx" path))]
@@ -62,10 +60,8 @@
        (reduce #(assoc %1 (:id %2) (:slug %2)) {})))
 
 (comment
-  (prn (events (:pixel-prophecy games))))
-
-(comment
   (prn games)
+  (prn (events (:pixel-prophecy games)))
   (reduce (fn [acc [k v]] (assoc acc k [v (* 2 v)])) {} {:a 1 :b 2})
   (prn (crawl-user-id "yngvarr"))
   (crawl "/node2/get/2")
@@ -73,5 +69,4 @@
   (def res (http/get "https://api.ldjam.com/vx/node2/walk/1/users/yngvarr"))
   (json/parse-string (:body res) true)
   (crawl "/node2/walk/1/users/yngvarr")
-  (html [:span.foo "bar"])
   )
