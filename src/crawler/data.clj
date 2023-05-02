@@ -20,6 +20,8 @@
                     "bereg"
                     "grimmpaperman"
                     "bangkerpow"
+                    "tudvari"
+                    "balimaarthebassfish"
                     ]
    :old-friends ["secretpocketcat"
                  "hacksawunit"

@@ -3,18 +3,22 @@
             [hiccup.core :refer [html]]
             [hiccup.page :refer [html5]]))
 
-(defn header [title]
-  [:head
-   [:meta {:charset "utf-8"}]
-   [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
-   [:link {:href "../css/main.css" :rel "stylesheet"}]
-   [:script {:src "../js/main.js"}]
-   [:title title]])
+(defn header
+  ([title] (header title ""))
+  ([title path-to-root]
+   [:head
+    [:meta {:charset "utf-8"}]
+    [:meta {:name "viewport" :content "width=device-width, initial-scale=1.0"}]
+    [:link {:href (str path-to-root "css/main.css"):rel "stylesheet"}]
+    [:script {:src (str path-to-root "js/main.js")}]
+    [:title title]]))
 
-(defn page [title content]
-  (html5 (header title)
-         [:body {:onload "init()"}
-          content]))
+(defn page
+  ([title content] (page title "" content))
+  ([title path-to-root content]
+   (html5 (header title path-to-root)
+          [:body {:onload "init()"}
+           content])))
 
 (defn link-name [list-key]
   (->> (-> list-key
@@ -39,7 +43,7 @@
         (vals (into (sorted-map-by >) events)))])
 
 (defn event-page [games events list-key event-id]
-  (page (str (link-name list-key) " — Ludum Dare Backlog")
+  (page (str (link-name list-key) " — Ludum Dare Backlog") "../"
         (list
           (events-header events)
           [:h1 (str "Ludum Dare " (get events event-id))]
