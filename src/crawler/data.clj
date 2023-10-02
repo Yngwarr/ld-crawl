@@ -21,8 +21,9 @@
                     "grimmpaperman"
                     "bangkerpow"
                     "tudvari"
-                    "balimaarthebassfish"]
-                    
+                    "balimaarthebassfish"
+                    "kirsybuu"]
+
    :old-friends ["secretpocketcat"
                  "hacksawunit"
                  "aviktorov"
@@ -45,4 +46,4 @@
                  "gagapete"
                  "jdah"
                  "torcado"]})
-                 
+
