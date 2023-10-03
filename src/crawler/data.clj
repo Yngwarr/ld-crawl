@@ -45,5 +45,10 @@
                  "ultrashel"
                  "gagapete"
                  "jdah"
-                 "torcado"]})
+                 "torcado"
+                 "voxel"
+                 "benjamin"
+                 "trasevol-dog"]
+   :vas3k-ludum-dare ["yogurtthehorse"
+                      "quasilyte"]})
 
