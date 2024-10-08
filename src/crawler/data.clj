@@ -22,7 +22,8 @@
                     "bangkerpow"
                     "tudvari"
                     "balimaarthebassfish"
-                    "kirsybuu"]
+                    "kirsybuu"
+                    "andrewkennedy"]
 
    :old-friends ["secretpocketcat"
                  "hacksawunit"
