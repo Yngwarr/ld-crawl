@@ -51,5 +51,8 @@
                  "benjamin"
                  "trasevol-dog"]
    :vas3k-ludum-dare ["yogurtthehorse"
-                      "quasilyte"]})
+                      "quasilyte"
+                      "n3k0k33p3r"
+                      "tapot"
+                      "ein"]})
 
